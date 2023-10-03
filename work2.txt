@@ -1,0 +1,113 @@
+--LISSTAG обратный
+SELECT DISTINCT column_value AS text FROM
+TABLE (sys.odcivarchar2list(201612151709,201709432368))
+
+
+--сессии
+select * from ( with vs as (select rownum rnum,                                                            inst_id,                                                                               sid,                                                                               serial#,                                                                               status,                                                                               username,                                                                               last_call_et,                                                                               command,                                                                               machine,                                                                               osuser,                                                                               module,                                                                               action,                 
+
+
+
+select * from (
+with vs as (select rownum rnum,
+                                                  							  inst_id,
+                                                                              sid,
+                                                                              serial#,
+                                                                              status,
+                                                                              username,
+                                                                              last_call_et,
+                                                                              command,
+                                                                              machine,
+                                                                              osuser,
+                                                                              module,
+                                                                              action,
+                                                                              resource_consumer_group,
+                                                                              client_info,
+                                                                              client_identifier,
+                                                                              type,
+                                                                              terminal,
+                                                                              sql_id,
+                                                                              sql_child_number
+                                                                         from gv$session) 
+                                                             select vs.inst_id, vs.sid ,serial# serial, vs.sql_id, vs.sql_child_number,
+                                                                    vs.username "Username",
+                                                                    case when vs.status = 'ACTIVE' 
+                                                                              then last_call_et 
+                                                                         else null end "Seconds in Wait",
+                                                                    (select command_name from v$sqlcommand where command_type = vs.command ) "Command",
+                                                                    vs.machine "Machine",
+                                                                    vs.osuser "OS User", 
+                                                                    lower(vs.status) "Status",
+                                                                    vs.module "Module",
+                                                                    vs.action "Action",
+                                                                    vs.resource_consumer_group,
+                                                                    vs.client_info,
+                                                                    vs.client_identifier
+                                                               from vs 
+                                                              where vs.USERNAME is not null
+                                                                and nvl(vs.osuser,'x') <> 'SYSTEM'
+                                                                and vs.type <> 'BACKGROUND'
+                                                                order by 1,2,3
+ ) sub1 order by 7 asc
+ 
+---alert log
+select * from V$parameter WHERE lower(name) LIKE '%dump%'
+select * from v$diag_alert_ext
+
+--time
+
+DECLARE
+t1 NUMBER;
+BEGIN
+	t1 := dbms_utility.get_time();
+	dbms_output.put_line(dbms_utility.get_time()-t1);
+	dbms_lock.sleep(1);
+	dbms_output.put_line(round((dbms_utility.get_time()-t1)/100/60,2));
+END;
+
+DROP TRIGGER AAK_TRG_COVER_202305558624
+CREATE OR REPLACE TRIGGER AAK_TRG_COVER_202305558624
+AFTER INSERT OR UPDATE
+ON insis_gen_v10.blc_policy_payment_plan FOR EACH ROW 
+DECLARE 
+LN_POLICY_ID 	NUMBER;
+LV_POLICY_NO	VARCHAR2(100) := 'PP';
+BEGIN
+	SELECT policy_id INTO LN_POLICY_ID FROM INSIS_GEN_V10.POLICY WHERE policy_no = lv_policy_no;
+	IF :NEW.POLICY_ID = LN_POLICY_ID
+	THEN
+		--insis_cust.p_log('FIND_NEMO',dbms_utility.format_call_stack);
+		INSIS_CUST.aak_call(pi_varchar => LV_POLICY_NO);
+	END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE INSIS_CUST.aak_call (
+    pi_number 	IN NUMBER DEFAULT 1,
+    pi_varchar 	IN VARCHAR2 DEFAULT 'NULL'
+    ) AS
+pragma AUTONOMOUS_TRANSACTION;
+BEGIN
+	
+	FOR i IN reverse 1 .. utl_call_stack.dynamic_depth()
+	LOOP
+		insis_cust.p_log('AAK_CALL_'||pi_varchar||' '||pi_number,
+		rpad(utl_call_stack.lexical_depth(i),9)
+		|| rpad(to_char(utl_call_stack.unit_line(i),'999999'),8)
+		||utl_call_stack.concatenate_subprogram(utl_call_stack.subprogram(i)));
+	
+	END LOOP;
+    commit;
+END;
+
+
+CREATE OR REPLACE procedure INSIS_CUST.p_log
+(p_param in varchar2, 
+p_value in varchar2)
+as
+pragma AUTONOMOUS_TRANSACTION;
+begin
+NULL;
+  insert into insis_cust.xx_test (param, value) values (p_param, p_value);
+  commit;
+end;
+
