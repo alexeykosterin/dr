@@ -11,6 +11,9 @@ SELECT last_day(ADD_MONTHS(TRUNC(SYSDATE,'MM'),+1)) FROM DUAL;
 ---последняя секунда
 select trunc(add_months(last_day(sysdate)+1, 1), 'mm')-1/86400 from dual;
 SELECT to_char(sysdate, 'hh24:mi:ss') FROM dual
+---12 месяцев
+SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),+level), 'MONTH', 'NLS_DATE_LANGUAGE = Russian') AS month_name FROM dual
+CONNECT BY ROWNUM <=12
 
 18:00
 select trunc(sysdate+1)+3/4 from dual
