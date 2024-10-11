@@ -1387,3 +1387,7 @@ END;
   BEGIN
     NULL;
   END package_is_valid;
+
+
+--проверка на цифры
+AND REGEXP_LIKE(QUEST_ANSWER, '^[[:digit:]]+$')
