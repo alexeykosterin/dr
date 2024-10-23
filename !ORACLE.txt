@@ -302,6 +302,28 @@ where l.sid=s.sid
 and id1 = u.OBJECT_ID
 and u.OBJECT_NAME like '%tess%'
 
+--кто блокирует пакет
+SELECT s.*,
+       l.lock_type,
+       l.mode_held,
+       l.mode_requested,
+       l.lock_id1,
+       'alter system kill session '''|| s.sid|| ','|| s.serial#|| ''' immediate;' kill_sid
+FROM   dba_lock_internal l,
+       v$session s
+WHERE  s.sid = l.session_id
+AND    UPPER(l.lock_id1) LIKE '%KAFKA_INTEGRATION%'
+AND    l.lock_type = 'Body Definition Lock'
+
+--правильная остановка джоба job
+declare
+v_job_id binary_integer:=1;
+begin
+  dbms_job.broken(v_job_id,true);
+  dbms_job.remove(v_job_id);
+  commit;
+end;
+
 ---длительность запросов
 
 
