@@ -15,6 +15,8 @@ SELECT to_char(sysdate, 'hh24:mi:ss') FROM dual
 SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE),+level), 'MONTH', 'NLS_DATE_LANGUAGE = Russian') AS month_name FROM dual
 CONNECT BY ROWNUM <=12
 
+to_char(CURRENT_TIMESTAMP,'ddMMyyyyHH24MISSFF3')
+
 18:00
 select trunc(sysdate+1)+3/4 from dual
 
