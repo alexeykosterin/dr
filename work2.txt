@@ -111,3 +111,6 @@ NULL;
   commit;
 end;
 
+---xmltype
+select dbms_lob.getlength(t.payload.GETCLOBVAL()), t.* from insis_sgi_dev.intrf_kafka_integration_in t WHERE TOPIC = 1
+ORDER BY id desc
