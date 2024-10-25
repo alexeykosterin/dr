@@ -1413,3 +1413,46 @@ END;
 
 --проверка на цифры
 AND REGEXP_LIKE(QUEST_ANSWER, '^[[:digit:]]+$')
+
+
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER SESSION SET CURRENT_SCHEMA = INSIS_CUST';
+	FOR r IN
+    (
+        SELECT owner || '.' || object_name AS synname,
+            object_type,
+            status,
+            CASE
+                WHEN object_type = 'JAVA CLASS'
+                THEN
+                    'ALTER JAVA CLASS "' || owner || '"."' || object_name || '" RESOLVE'
+                WHEN object_type = 'RULE SET'
+                THEN
+                    'BEGIN dbms_ruleadm_internal.validate_re_object(''' || owner || '.' || object_name || ''', 23); END;'
+                WHEN object_type = 'RULE'
+                THEN
+                    'BEGIN dbms_ruleadm_internal.validate_re_object(''' || owner || '.' || object_name || ''', 36); END;'
+                WHEN object_type = 'EVALUATION CONTEXT'
+                THEN
+                    'BEGIN dbms_ruleadm_internal.validate_re_object(''' || owner || '.' || object_name || ''', 38); END;'
+                ELSE
+                    'ALTER ' || replace(object_type, ' BODY') || ' ' || owner || '.' || object_name || ' compile ' || CASE WHEN object_type LIKE '%BODY%' THEN 'BODY' END
+        END AS compile_stmt
+        FROM sys.dba_objects
+        WHERE owner LIKE 'INSIS_%'
+            AND status != 'VALID'
+            AND owner NOT IN ('INSIS_LIFE_CUST', 'INSIS_HLT_V10_RLS', 'INSIS_GEN_V10_NAS', 'INSIS_IBNR', 'INSIS_AMX')
+            AND object_type NOT IN ('QUEUE')
+            AND object_name NOT LIKE '%MAIN_V%'
+    )
+    LOOP
+        BEGIN
+            EXECUTE IMMEDIATE r.compile_stmt;
+               
+            EXCEPTION
+                WHEN OTHERS
+                THEN
+                    dbms_output.put_line('Error compiling ' || lower(r.object_type) || ' ' || r.synname || ': ' || SQLERRM);
+        END;
+    END LOOP;
+END;
