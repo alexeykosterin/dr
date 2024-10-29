@@ -1,0 +1,55 @@
+ищем SHA от даты
+git log --oneline --no-abbrev-commit --pretty=format:"%H %ad - %an: %s" --after="2024-09-20" --first-parent
+находим самый ранний коммит 35a8c1da20cd451a2d23b0ee578a48bee4753e98 по текущий 627b7b3ca6adafe4c532e69a276b7bfb6bb54c14
+git diff --name-only 35a8c1da20cd451a2d23b0ee578a48bee4753e98 627b7b3ca6adafe4c532e69a276b7bfb6bb54c14 origin/master -- databaseChangeLogs/
+
+git symbolic-ref --short HEAD
+
+git config --global http.sslbackend schannel
+git config --global http.sslVerify false
+https://confluence/pages/viewpage.action?pageId=287871290
+git checkout master
+git pull
+git log --oneline --no-abbrev-commit --grep=IT-87256 --first-parent
+git log --oneline --no-abbrev-commit --grep=IT-85678
+git revert --no-commit HASH
+git commit -a -m "MESSAGE"
+git commit -m "MESSAGE"
+git push -f
+git push --set-upstream --progress "origin" IT-87998
+git reset --hard origin/master
+
+git merge -X ours B
+
+git checkout master --
+git pull
+git checkout -b OST-46216
+
+git add -A && git commit -m "MESSAGE"
+git add -p file_name
+(построчные изменения в ветку)
+
+git checkout INSIS_TEMP
+git fetch origin
+git reset --hard origin/master
+git push --force
+
+git push --set-upstream --progress "origin" IT-90316
+git push --progress "origin" IT-89963:IT-89963
+
+
+git log --oneline --no-abbrev-commit --grep="edit yml" --first-parent
+git reset --mixed e7b16e9a2de3ad26688f3c781657cc712e78292e --
+git reset --hard e7b16e9a2de3ad26688f3c781657cc712e78292e --
+git push --force origin master
+
+---clone
+git checkout -b OST-46547
+git push --set-upstream --progress "origin" OST-46547
+git fetch origin
+git reset --hard origin/OST-46220
+git push --force
+git checkout master
+git pull --progress -v --no-rebase "origin"
+
+git ls-files -s "db.changelog-IT-89360.xml"
